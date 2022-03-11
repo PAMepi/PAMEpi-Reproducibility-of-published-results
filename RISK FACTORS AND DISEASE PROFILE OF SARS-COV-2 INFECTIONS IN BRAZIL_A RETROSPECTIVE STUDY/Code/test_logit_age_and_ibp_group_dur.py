@@ -22,7 +22,6 @@ for col in data_init.columns:
 data_init['tth'] = (data_init.DT_INTERNA - data_init.DT_SIN_PRI).dt.days
 data_init['ti'] = (data_init.DT_EVOLUCA - data_init.DT_INTERNA).dt.days
 
-# data_init['ttn'] = (data_init.DT_NOTIFIC - data_init.DT_SIN_PRI).dt.days
 data_init.loc[pd.isna(data_init.VACINA_COV),'VACINA_COV'] = 0
 
 ages = [0, 18, 30, 40, 50, 65, 75, 85, np.inf]
@@ -44,12 +43,6 @@ for i in range(nsep):
     else:
         data_init.loc[(data_init.ti>=tis[i])&(data_init.ti<tis[i+1]), 'TINT'] = 'T{}t{}'.format(tis[i],tis[i+1])
 data_init = data_init[data_init.TINT != '']
-
-
-# ibp = pd.read_csv('data-cidacs_ipb_municipios.csv')
-# ibpv = [ibp.ip_vl_n[ibp.ip_qntl_n==i].min() for i in range(1,6)]
-# ibpv = ibpv + [ibp.ip_vl_n.max()]
-# ibpv = np.linspace(data_init.ibp.min(), data_init.ibp.max(), 6)
 
 ibpv = [data_init.ibp.quantile(x) for x in [0.0,0.2,0.4,0.6,0.8,1.0]]
 names = [ 'BDI_' + i for i in ['0', '1', '2', '3', '4']]

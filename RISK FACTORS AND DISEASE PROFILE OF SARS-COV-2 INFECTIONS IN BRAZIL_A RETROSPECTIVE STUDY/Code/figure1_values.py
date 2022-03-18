@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Nov 23 16:47:06 2021
-
-@author: lhunlindeion
+Analize the SRAG data and export the statistics to generate the figure 1
+Needs the filter_SRAG.py csv output to run
 """
 
 import pandas as pd
@@ -106,10 +105,10 @@ def create_filter_binary(data, ycol, xcols, fname, CI=0.95):
     saida = pd.DataFrame(saida)
     saida.to_csv(fname, index=False)
 
-
+path = '../Results/'
 ref = datetime.date(2019, 12, 31)
 max_dur = 90
-data0 = pd.read_csv('SRAG_filtered_morb.csv')
+data0 = pd.read_csv('../Data/SRAG_filtered_morb.csv')
 
 for col in data0.columns:
     if (col[:2] == 'DT') or (col[:4] == 'DOSE'):
@@ -155,19 +154,19 @@ data0['TSM'] = (data0.DT_EVOLUCA-data0.DT_SIN_PRI).dt.days
 data0.loc[data0.MORTE!="MORTE", 'TSM'] = np.nan
 data0['TSH'] = (data0.DT_INTERNA-data0.DT_SIN_PRI).dt.days
 data0['TSI'] = (data0.DT_ENTUTI-data0.DT_SIN_PRI).dt.days
-create_filter_cont(data0, 'UTI_dur', ['AGEGRP', 'CS_SEXO', 'RACA', 'BDIGRP', 'VACINA', 'COMOR' ], 'ICU_dur.csv', 'MORTE' )
-create_filter_cont(data0, 'HOSP_dur', ['AGEGRP', 'CS_SEXO', 'RACA', 'BDIGRP', 'VACINA', 'COMOR' ], 'HOSP_dur.csv', 'MORTE' )
-create_filter_cont(data0, 'TSM', ['AGEGRP', 'CS_SEXO', 'RACA', 'BDIGRP', 'VACINA', 'COMOR' ], 'TimeSintomasMorte.csv', 'MORTE' )
-create_filter_cont(data0, 'TSH', ['AGEGRP', 'CS_SEXO', 'RACA', 'BDIGRP', 'VACINA', 'COMOR' ], 'TimeSintomasInterna.csv', 'MORTE' )
-create_filter_cont(data0, 'TSI', ['AGEGRP', 'CS_SEXO', 'RACA', 'BDIGRP', 'VACINA', 'COMOR' ], 'TimeSintomasICU.csv', 'MORTE' )
+create_filter_cont(data0, 'UTI_dur', ['AGEGRP', 'CS_SEXO', 'RACA', 'BDIGRP', 'VACINA', 'COMOR' ], path + 'ICU_dur.csv', 'MORTE' )
+create_filter_cont(data0, 'HOSP_dur', ['AGEGRP', 'CS_SEXO', 'RACA', 'BDIGRP', 'VACINA', 'COMOR' ], path + 'HOSP_dur.csv', 'MORTE' )
+create_filter_cont(data0, 'TSM', ['AGEGRP', 'CS_SEXO', 'RACA', 'BDIGRP', 'VACINA', 'COMOR' ], path + 'TimeSintomasMorte.csv', 'MORTE' )
+create_filter_cont(data0, 'TSH', ['AGEGRP', 'CS_SEXO', 'RACA', 'BDIGRP', 'VACINA', 'COMOR' ], path + 'TimeSintomasInterna.csv', 'MORTE' )
+create_filter_cont(data0, 'TSI', ['AGEGRP', 'CS_SEXO', 'RACA', 'BDIGRP', 'VACINA', 'COMOR' ], path + 'TimeSintomasICU.csv', 'MORTE' )
 
 data_m = data0[data0.MORTE != 'OTHER']
 data_m['MORTE'] = (data_m.MORTE=='MORTE')
-create_filter_binary(data_m[~pd.isna(data_m.DT_ENTUTI)], 'MORTE', ['AGEGRP', 'CS_SEXO', 'RACA', 'BDIGRP', 'VACINA', 'COMOR' ], 'Mortalidade_ICU.csv')
-create_filter_binary(data_m[pd.isna(data_m.DT_ENTUTI)], 'MORTE', ['AGEGRP', 'CS_SEXO', 'RACA', 'BDIGRP', 'VACINA', 'COMOR' ], 'Mortalidade_HOSP.csv')
+create_filter_binary(data_m[~pd.isna(data_m.DT_ENTUTI)], 'MORTE', ['AGEGRP', 'CS_SEXO', 'RACA', 'BDIGRP', 'VACINA', 'COMOR' ], path + 'Mortalidade_ICU.csv')
+create_filter_binary(data_m[pd.isna(data_m.DT_ENTUTI)], 'MORTE', ['AGEGRP', 'CS_SEXO', 'RACA', 'BDIGRP', 'VACINA', 'COMOR' ], path + 'Mortalidade_HOSP.csv')
 data0['THI'] = (data0.DT_ENTUTI-data0.DT_INTERNA).dt.days
 data0['DirICU'] = (data0.THI == 0)
-create_filter_binary(data0, 'DirICU', ['AGEGRP', 'CS_SEXO', 'RACA', 'BDIGRP', 'VACINA', 'COMOR' ], 'Direct_to_ICU.csv')
+create_filter_binary(data0, 'DirICU', ['AGEGRP', 'CS_SEXO', 'RACA', 'BDIGRP', 'VACINA', 'COMOR' ], path + 'Direct_to_ICU.csv')
 dataind = data0[data0.THI != 0]
 dataind['frac'] = (~pd.isna(dataind.DT_ENTUTI))
-create_filter_binary(dataind, 'frac', ['AGEGRP', 'CS_SEXO', 'RACA', 'BDIGRP', 'VACINA', 'COMOR' ], 'Frac_to_ICU.csv')
+create_filter_binary(dataind, 'frac', ['AGEGRP', 'CS_SEXO', 'RACA', 'BDIGRP', 'VACINA', 'COMOR' ], path + 'Frac_to_ICU.csv')

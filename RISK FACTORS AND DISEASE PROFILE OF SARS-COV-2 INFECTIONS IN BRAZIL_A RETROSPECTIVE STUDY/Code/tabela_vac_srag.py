@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Jan 28 11:11:56 2022
-
-@author: lhunlindeion
+Calculate the Vaccinated in SARDdb columns of Table 2
+Needs the filter_SRAG.py csv output to run
 """
 
 import numpy as np
@@ -11,7 +10,7 @@ import datetime
 import pandas as pd
 
 
-data_init = pd.read_csv('SRAG_filtered_morb.csv')
+data_init = pd.read_csv('../Data/SRAG_filtered_morb.csv')
 ibpv = [data_init.ibp.quantile(x) for x in [0.0,0.2,0.4,0.6,0.8,1.0]]
 
 for col in data_init.columns:
@@ -37,7 +36,8 @@ for i in range(5):
     else:
         data_init.loc[(data_init.ibp>=ibpv[i])&(data_init.ibp<ibpv[i+1]), 'BDI_GRP'] = names[i]
 
-trad_raca = {1:'Branca', 2:'Preta', 3:'Amarela', 4:'Parda', 5:'Indigena'}
+# trad_raca = {1:'Branca', 2:'Preta', 3:'Amarela', 4:'Parda', 5:'Indigena'}
+trad_raca = {1:'White', 2:'Black', 3:'Yellow', 4:'Mixed', 5:'Indigenous'}
 data_init['RACA'] = data_init['CS_RACA'].map(trad_raca)
 data_init['tv1ti'] = (data_init.DT_INTERNA - data_init.DOSE_1_COV).dt.days
 data_init['tv2ti'] = (data_init.DT_INTERNA - data_init.DOSE_2_COV).dt.days
@@ -108,7 +108,7 @@ for name in data.LAB_PR_COV.unique():
 
 #%%
 data_all = [data, data[data.EVOLUCAO==1], data[data.EVOLUCAO==2]]
-name = ['_A', '_C', '_D']
+name = ['_ALL', '_Cure', '_Death']
 
 sex = {}
 for val in data.CS_SEXO.unique():

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jan 20 17:45:15 2022
+Calculate the mild to moderate infections column of Table 1, it needs the 
+sg.csv file filtered from the datalake
 
-@author: lhunlindeion
 """
 
 import numpy as np
@@ -11,22 +11,20 @@ import datetime
 import pandas as pd
 
 
-data_init = pd.read_csv('SRAG_filtered_morb.csv')
-ibpv = [data_init.ibp.quantile(x) for x in [0.0,0.2,0.4,0.6,0.8,1.0]]
+data_init = pd.read_csv('../Data/IBP_classes_categories.csv')
+ibp_mins = data_init.n_f.to_numpy()
+ibp_maxs = data_init.n_to.to_numpy()
 
-data_init = []
+ibpv = np.r_[ibp_mins, ibp_maxs[-1]]
 
-sg = pd.read_csv('sg.csv')
+
+sg = pd.read_csv('../Data/sg.csv')
 sg = sg[(sg.evolucaoCaso != 'Óbito' ) & (sg.evolucaoCaso != 'Internado') & (sg.evolucaoCaso != 'Internado em UTI')]
 #%%
 sg['municipioIBGE'] = pd.to_numeric(sg.municipioIBGE, errors='coerce')
-# sg['municipioNotificacaoIBGE'] = pd.to_numeric(sg.municipioNotificacaoIBGE, errors='coerce')
-
-# sg.loc[pd.isna(sg.municipioIBGE), 'municipioIBGE'] = sg.municipioNotificacaoIBGE[pd.isna(sg.municipioIBGE)]
-
-ibp = pd.read_csv('data-cidacs_ipb_municipios.csv')
+ibp = pd.read_csv('../Data/pop_ibp.csv')
 sg['ibp'] = np.nan
-for x, valor in zip(ibp.ip_cd_m, ibp.ip_vl_n):
+for x, valor in zip(ibp.Cod, ibp.ip_vl_n):
     sg.loc[sg.municipioIBGE == x,'ibp'] = valor
 
 names = [ 'BDI_' + i for i in ['0', '1', '2', '3', '4']]
@@ -93,7 +91,8 @@ for i in range(nsep):
 sexo = {'female': (sg.sexo==1).sum(), 'male':(sg.sexo==2).sum(),
         'unknown': (sg.sexo==9).sum() + pd.isna(sg.sexo).sum()}
 print(sexo)
-trad_raca = {2:'Branca', 1:'Preta', 5:'Amarela', 4:'Parda', 3:'Indigena'}
+# trad_raca = {2:'Branca', 1:'Preta', 5:'Amarela', 4:'Parda', 3:'Indigena'}
+trad_raca = {2:'White', 1:'Black', 5:'Yellow', 4:'Mixed', 3:'Indigenous'}
 sg['RACA'] = sg['racaCor'].map(trad_raca)
 raca = {loc:(sg.RACA==loc).sum() for loc in sg.RACA.unique()}
 raca[np.nan] = pd.isna(sg.RACA).sum()

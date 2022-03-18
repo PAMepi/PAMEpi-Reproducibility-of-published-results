@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Nov 19 13:48:26 2021
-
-@author: lhunlindeion
+Load and Filter the OpenDataSUS SRAG database.
 """
 
 import numpy as np
@@ -11,11 +9,14 @@ from scipy.optimize import minimize, root
 import datetime
 import pandas as pd
 
-ref = datetime.date(2019, 12, 31)
+
+#Fixed parameters
 lday = datetime.date(2021, 11, 15).strftime('%d/%m/%Y')
 fday = datetime.date(2020, 2, 20).strftime('%d/%m/%Y')
+max_dur = 600
 
-def filter_srag(filename, state=None, lastday=datetime.date.today().strftime('%d/%m/%Y'),
+
+def filter_srag(filename, lastday=datetime.date.today().strftime('%d/%m/%Y'),
                 firstday=fday):
     data_raw = pd.read_csv(filename, delimiter=";")
     data_raw.drop_duplicates(inplace=True)
@@ -31,9 +32,6 @@ def filter_srag(filename, state=None, lastday=datetime.date.today().strftime('%d
             data_raw[col] = np.nan
     data_raw = data_raw[useful_cols]
     data_raw = data_raw[(data_raw.CLASSI_FIN == 5)]
-    if state is not None:
-        data_raw = data_raw[data_raw.SG_UF_INTE == state]
-
     #adjusting in
     data_raw.loc[pd.isna(data_raw.DT_INTERNA),'DT_INTERNA'] = data_raw.DT_ENTUTI[pd.isna(data_raw.DT_INTERNA)]
     data_raw.loc[pd.isna(data_raw.DT_INTERNA),'DT_INTERNA'] = data_raw.DT_NOTIFIC[pd.isna(data_raw.DT_INTERNA)]    
@@ -42,7 +40,6 @@ def filter_srag(filename, state=None, lastday=datetime.date.today().strftime('%d
     #UTI
     data_raw.loc[pd.isna(data_raw.DT_SAIDUTI)&(~pd.isna(data_raw.DT_ENTUTI)),'DT_SAIDUTI'] = data_raw.DT_EVOLUCA[pd.isna(data_raw.DT_SAIDUTI)&(~pd.isna(data_raw.DT_ENTUTI))]
     data_raw.loc[pd.isna(data_raw.DT_SAIDUTI)&(~pd.isna(data_raw.DT_ENTUTI)),'DT_SAIDUTI'] = data_raw.DT_ENCERRA[pd.isna(data_raw.DT_SAIDUTI)&(~pd.isna(data_raw.DT_ENTUTI))]
-    # data_raw.loc[pd.isna(data_raw.DT_SAIDUTI)&(~pd.isna(data_raw.DT_ENTUTI)),'DT_SAIDUTI'] = lastday
     #EVOL
     data_raw.loc[pd.isna(data_raw.DT_EVOLUCA),'DT_EVOLUCA'] = data_raw.DT_ENCERRA[pd.isna(data_raw.DT_EVOLUCA)]
     data_raw.loc[pd.isna(data_raw.DT_EVOLUCA), 'DT_EVOLUCA'] = data_raw.DT_SAIDUTI[pd.isna(data_raw.DT_EVOLUCA)]
@@ -63,29 +60,35 @@ def filter_srag(filename, state=None, lastday=datetime.date.today().strftime('%d
             data = data[~(data[col]<firstday_pd)]
     return data
 
-srag2020 = filter_srag('INFLUD20-15-11-2021.csv', lastday=lday)
+
+#Load the OpenDataSUS 2020 and 2021 SRAG database
+srag2020 = filter_srag('../Data/INFLUD20-15-11-2021.csv', lastday=lday)
 print('2020 done')
-srag2021 = filter_srag('INFLUD21-15-11-2021.csv', lastday=lday)
+srag2021 = filter_srag('../Data/INFLUD21-15-11-2021.csv', lastday=lday)
 print('2021 done')
 data_init = srag2020.append(srag2021, ignore_index=True)
-max_dur = 600
 
+
+#Calculate ICU and Hospitalization Durations
 data_init['UTI_dur'] = (data_init.DT_SAIDUTI-data_init.DT_ENTUTI).dt.days
 data_init['HOSP_dur'] = (data_init.DT_EVOLUCA-data_init.DT_INTERNA).dt.days
 data_init = data_init[(data_init.UTI_dur<max_dur)|pd.isna(data_init.UTI_dur)]
 data_init = data_init[(data_init.HOSP_dur<max_dur)]
-# # data_init['MORTE'] = (data_init.EVOLUCAO == 2)
-print('adding IBP')
-ibp = pd.read_csv('data-cidacs_ipb_municipios.csv')
-ibp['temp'] = ibp.ip_cd_m // 10
+
+
+print('adding BDI')
+ibp = pd.read_csv('../Data/pop_ibp.csv')
+ibp['temp'] = ibp.Cod // 10
 data_init['ibp'] = np.nan
 for x, valor in zip(ibp.temp, ibp.ip_vl_n):
     data_init.loc[data_init.CO_MUN_RES == x,'ibp'] = valor
 
-
-data_init.to_csv('SRAG_filtered_morb.csv', index=False)
+#Export Data
+data_init.to_csv('../Data/SRAG_filtered_morb.csv', index=False)
 
 #%%
+
+# Print some descriptive statistics from the SRAG database
 ld = pd.to_datetime(lday, format='%d/%m/%Y')
 fd = pd.to_datetime(fday, format='%d/%m/%Y')
 print('Number of Confirmed: {}'.format(len(data_init)))

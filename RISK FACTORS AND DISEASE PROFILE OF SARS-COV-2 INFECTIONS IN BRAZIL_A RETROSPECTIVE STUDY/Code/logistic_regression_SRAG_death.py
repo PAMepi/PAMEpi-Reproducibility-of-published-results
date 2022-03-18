@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Nov 17 16:11:46 2021
-
-@author: lhunlindeion
+Use a logistic regression to estimate the contribution to the hospitalized
+mortality of each health and socio-economic parameter
 """
 
 import numpy as np
@@ -13,7 +12,7 @@ import pandas as pd
 
 ref = datetime.date(2019, 12, 31)
 
-data_init = pd.read_csv('SRAG_filtered_morb.csv')
+data_init = pd.read_csv('../Data/SRAG_filtered_morb.csv')
 data_init['MORTE'] = (data_init.EVOLUCAO == 2)
 states = np.r_[np.array([ 'BR' ]), data_init.SG_UF_INTE.unique()]
 for col in data_init.columns:
@@ -93,16 +92,6 @@ def create_dummy(x, cols, sort=None):
         labels = labels + label_tt
     return output, labels
 
-def rec_region(states):
-    regioes = {'SC':'S', 'PR':'S', 'RS':'S',
-               'RJ':'SE', 'MG':'SE', 'ES':'SE', 'SP':'SE',
-               'DF':'CO', 'MT':'CO', 'MS':'CO', 'GO':'CO',
-               'AP':'N', 'PA':'N', 'TO':'N', 'AM':'N', 'RO':'N', 'RR':'N', 'AC':'N',
-               'BA':'NE', 'AL':'NE', 'SE':'NE', 'PE':'NE', 'PB':'NE', 'RN':'NE',\
-               'CE':'NE', 'PI':'NE', 'MA':'NE'}
-    reg = states.map(regioes)
-    return reg
-
 def logit(x, pars):
     if len(pars) > 1:
         P = pars[0] + (pars[1:].reshape((-1,1)) * x).sum(axis=0)
@@ -116,7 +105,6 @@ def nll_logit(x, y, pars):
 
 data_init['eUTI'] = ~pd.isna(data_init.DT_ENTUTI)
 data_init['NVACC'] = (data_init.VACINA_COV!=1)
-data_init['reg'] = rec_region(data_init.SG_UF_INTE)
 data_init = data_init[~pd.isna(data_init.CS_RACA)]
 data_init = data_init[data_init.CS_RACA!=9]
 data_init = data_init[data_init.CS_SEXO != 'I']
@@ -197,11 +185,11 @@ for name, val, std, z in zip(out.columns, res, sqr, np.abs(res)/sqr):
     saida['odd'].append(np.exp(val))
     saida['sum_col'].append(out[name].sum())
 
-with open('corr_logit.csv', 'w') as f:
+with open('../Results/logit_correlations.csv', 'w') as f:
     f.write(' ,' + ', '.join(out.columns) + '\n')
     for i, line in enumerate(cor):
         f.write(out.columns[i] + ', ' + ', '.join([str(ele) for ele in line.tolist()])+ '\n')
     
 
 sa = pd.DataFrame(saida)
-sa.to_csv('logit_results_ag_tint.csv', index=False)    
+sa.to_csv('../Results/logit_results.csv', index=False)

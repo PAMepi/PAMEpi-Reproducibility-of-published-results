@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Dec 14 17:12:40 2021
-
-@author: lhunlindeion
+Routine to generate Supplementary Figure 3. It generate separate pngs for
+the individual plots in the figure. It needs the generate_sf3_data to be
+run beforehand
 """
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-sah = pd.read_csv('output/age_ibp/mean_h.csv')
-sau = pd.read_csv('output/age_ibp/mean_u.csv')
+sah = pd.read_csv('../Results/mean_h.csv')
+sau = pd.read_csv('../Results/mean_u.csv')
 s = (10,8)
 
 
@@ -22,34 +22,30 @@ Y = np.array([0, 18, 30, 40, 50, 65, 75, 85, 95])
 
 Z = (sah.n_death/(sah.n_death+sah.n_cure)).to_numpy().reshape(s)
 N = (sah.n_death+sah.n_cure).to_numpy().reshape(s)
-
-
 Z[N<100] = np.nan
 plt.figure()
-plt.pcolormesh(X, Y, Z.T)#, vmin=0, vmax=1)
+plt.pcolormesh(X, Y, Z.T)
 plt.colorbar()
 CS = plt.contour(0.5*(X[1:]+X[:-1]), 0.5*(Y[1:]+Y[:-1]), Z.T, colors='w', levels=[0.1,0.2,0.4, 0.6, 0.75])#
 plt.gca().clabel(CS, inline=True)
-# plt.title()
 plt.xlabel('BDI')
 plt.ylabel('Age')
 plt.title('Mortality (Non-ICU patients)')
 plt.tight_layout()
-plt.savefig('contour_HOSP_mortality.png')
+plt.savefig('../Figures/contour_HOSP_mortality.png')
+
+
 
 Z = (sau.n_death/(sau.n_death+sau.n_cure)).to_numpy().reshape(s)
 N = (sau.n_death+sau.n_cure).to_numpy().reshape(s)
-
-
 Z[N<100] = np.nan
 plt.figure()
-plt.pcolormesh(X, Y, Z.T)#, vmin=0, vmax=1)
+plt.pcolormesh(X, Y, Z.T)
 plt.colorbar()
 CS = plt.contour(0.5*(X[1:]+X[:-1]), 0.5*(Y[1:]+Y[:-1]), Z.T, colors='w', levels=[0.1,0.2,0.4, 0.6, 0.75])#
 plt.gca().clabel(CS, inline=True)
-# plt.title()
 plt.xlabel('BDI')
 plt.ylabel('Age')
 plt.title('Mortality (ICU patients)')
 plt.tight_layout()
-plt.savefig('contour_ICU_mortality.png')
+plt.savefig('../Figures/contour_ICU_mortality.png')

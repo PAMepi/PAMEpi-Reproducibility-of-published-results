@@ -2,7 +2,19 @@
 # -*- coding: utf-8 -*-
 """
 Calculate the Vaccinated in SARDdb columns of Table 2
-Needs the filter_SRAG.py csv output to run
+Needs the filter_SRAG.py csv output to run.
+Vaccine Labs:
+    AZ: AstraZeneca/ AZD1222 - SII/ COVISHIELD
+    SC: Sinovac- CoronaVac
+    PF: Pfizer/BioNTech Comirnaty
+    JS: Janssen/ Ad26.COV
+Cycle:
+    CO = Complete
+    IN = Incomplete
+Delay:
+    m0 = 0-60 days (<2months)
+    m60 = 60-180 days (2<t<6 months)
+    m180 = >180 days (>6 months)
 """
 
 import numpy as np
@@ -133,7 +145,7 @@ for val in data.RACA.unique():
             raca['NaN'+name[i]] = pd.isna(data_all[i].RACA).sum()
         else:
             raca[str(val)+name[i]] = (data_all[i].RACA==val).sum()
-print('raca', raca)
+print('ethnicity', raca)
 bdi = {}
 for val in data.BDI_GRP.unique():
     for i in range(3):

@@ -92,7 +92,7 @@ sexo = {'female': (sg.sexo==1).sum(), 'male':(sg.sexo==2).sum(),
         'unknown': (sg.sexo==9).sum() + pd.isna(sg.sexo).sum()}
 print(sexo)
 # trad_raca = {2:'Branca', 1:'Preta', 5:'Amarela', 4:'Parda', 3:'Indigena'}
-trad_raca = {2:'White', 1:'Black', 5:'Yellow', 4:'Mixed', 3:'Indigenous'}
+trad_raca = {4:'White', 1:'Black', 3:'Yellow', 5:'Mixed', 2:'Indigenous'}
 sg['RACA'] = sg['racaCor'].map(trad_raca)
 raca = {loc:(sg.RACA==loc).sum() for loc in sg.RACA.unique()}
 raca[np.nan] = pd.isna(sg.RACA).sum()

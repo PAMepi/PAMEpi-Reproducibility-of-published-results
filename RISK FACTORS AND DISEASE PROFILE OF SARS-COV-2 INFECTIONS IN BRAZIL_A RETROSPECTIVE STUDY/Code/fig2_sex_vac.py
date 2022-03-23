@@ -13,7 +13,6 @@ Column descriptions (X=male, female, vac,  unvac):
 """
 
 import numpy as np
-# from scipy.optimize import minimize, root
 import datetime
 import pandas as pd
 import matplotlib.pyplot as plt

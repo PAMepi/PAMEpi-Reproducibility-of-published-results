@@ -1,4 +1,4 @@
-# <img src="Images/logo.png" width="80"/>  Reproducibility of published results:
+# <img src="PAMepi/PAMepi_scripts_datalake/blob/main/Images/logo.png" width="80"/>  Reproducibility of published results: 
 
 ## Risk factors and disease profile of COVID-19 in Brazil: a retrospective study of 15,663,203 cases and 584,761 deaths
 

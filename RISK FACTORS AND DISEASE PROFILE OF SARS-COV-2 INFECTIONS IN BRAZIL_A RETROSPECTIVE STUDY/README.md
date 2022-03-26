@@ -1,7 +1,8 @@
-![](../Images/realizacao.png)
+# <img src="Images/logo.png" width="80"/>  Reproducibility of published results:
 
-# Reproducibility of published results:
-# RISK FACTORS AND DISEASE PROFILE OF SARS-COV-2 INFECTIONS IN BRAZIL: A RETROSPECTIVE STUDY
+## Risk factors and disease profile of COVID-19 in Brazil: a retrospective study of 15,663,203 cases and 584,761 deaths
+
+[![DOI](https://zenodo.org/badge/396775199.svg)](https://doi.org/10.5281/zenodo.6385254)
 
 Before running the code, it is necessary to download in the *Data* folder the
 databases used in this analysis:

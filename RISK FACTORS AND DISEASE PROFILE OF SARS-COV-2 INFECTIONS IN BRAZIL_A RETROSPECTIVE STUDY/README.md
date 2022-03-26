@@ -150,5 +150,7 @@ ToDo
 Models were implemented using Python > 3.5 and depend on libraries such as [Pandas](https://github.com/pandas-dev/pandas), [SciPy](https://github.com/scipy/scipy), [Numpy](https://github.com/numpy/numpy) and [Matplotlib](https://github.com/matplotlib/matplotlib) 
 
 
-![](../Images/apoio.png)
+# Citing this work
+
+Platform For Analytical Modelis in Epidemiology. (2022). PAMEpi-Reproducibility-of-published-results (v1.0). Zenodo. https://doi.org/10.5281/zenodo.6385254
 
